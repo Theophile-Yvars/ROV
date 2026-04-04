@@ -27,15 +27,11 @@ build:
 	docker build -t $(IMAGE_NAME) .
 
 # 2. Initialisation du Workspace sur la Pi
-# On utilise un container temporaire pour créer build/install/log sur l'hôte
 init:
-	@echo "$(GREEN)🚀 Initialisation du Workspace sur la Pi...$(NC)"
-	@docker run --rm \
-		--privileged \
-		-v "$(CURDIR):/home/rov_ws" \
-		$(IMAGE_NAME) \
-		bash -c "source /opt/ros/jazzy/setup.bash && cd /home/rov_ws && colcon build --symlink-install"
-	@echo "$(GREEN)✅ Workspace prêt !$(NC)"
+	@echo "🚀 Compilation native sur la Raspberry Pi..."
+	# On remonte de deux niveaux pour lancer colcon depuis la racine du workspace
+	cd ../.. && colcon build --symlink-install
+	@echo "✅ Dossiers install/ et build/ créés à la racine du projet."
 
 # 3. Lancement (Appel de ton script start_robot_docker.sh)
 run:
