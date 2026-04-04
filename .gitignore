@@ -1,0 +1,57 @@
+# --- ROS 2 Build Folders ---
+# Ces dossiers sont générés par 'colcon build' sur le Pi 5.
+# Ils ne doivent JAMAIS être sur GitHub.
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# --- C++ / IDE Specific ---
+# Fichiers de configuration d'éditeurs (VS Code, etc.)
+.vscode/
+.idea/
+*.swp
+*.patch
+*.diff
+
+# --- Python Compiled Files ---
+# Générés lors de l'exécution des fichiers Launch ou de la logique Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# --- Web / React Specific ---
+# Pour ton dossier dashboard_web
+dashboard_web/node_modules/
+dashboard_web/build/
+dashboard_web/.env.local
+.DS_Store
+
+# --- OS Specific ---
+# Fichiers système invisibles
+Thumbs.db
+.DS_Store
+
+# --- Frontend (React) ---
+# Dossier des dépendances (TRÈS LOURD)
+dashboard_web/node_modules/
+
+# Dossier de build (production)
+dashboard_web/build/
+dashboard_web/dist/
+
+# Logs d'erreurs npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de variables d'environnement (Clés API, etc.)
+dashboard_web/.env
+dashboard_web/.env.local
+dashboard_web/.env.development.local
+dashboard_web/.env.test.local
+dashboard_web/.env.production.local
+
+# Dossiers de test
+dashboard_web/coverage/
