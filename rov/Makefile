@@ -1,6 +1,6 @@
 # --- Configuration ---
 IMAGE_NAME = rov-jazzy
-CONTAINER_NAME = rov
+CONTAINER_NAME = rov-container
 WS_PATH = /home/rov_ws
 
 # Couleurs pour le terminal
