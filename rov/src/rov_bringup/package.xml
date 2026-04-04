@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>robot_bringup</name>
+  <name>rov_bringup</name>
   <version>0.0.1</version>
   <description>Scripts de lancement pour démarrer tout le robot Chenilles</description>
   <maintainer email="votre@email.com">Theophile</maintainer>

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- Configuration des noms ---
-CONTAINER_NAME="rov"
+CONTAINER_NAME="rov-container"
 IMAGE_NAME="rov-jazzy"
 WS_PATH="/home/rov_ws"
 
