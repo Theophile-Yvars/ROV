@@ -24,6 +24,8 @@ sleep 1
 echo "--- 🐳 Démarrage du Container : $CONTAINER_NAME ---"
 docker rm -f $CONTAINER_NAME 2>/dev/null
 
+REAL_WS_ROOT=$(realpath "$(pwd)/../..")
+
 docker run -dt --name $CONTAINER_NAME \
   --privileged --net=host --ipc=host --pid=host \
   --shm-size=1gb \
@@ -31,7 +33,7 @@ docker run -dt --name $CONTAINER_NAME \
   -v /usr/lib/aarch64-linux-gnu:/host_libs:ro \
   -v /usr/bin:/host_bins:ro \
   -v /usr/share/libcamera:/usr/share/libcamera:ro \
-  -v "$(pwd)":$WS_PATH \
+  -v "/home/yvars/rov-ws:/home/rov_ws" \
   -v /etc/timezone:/etc/timezone:ro \
   -v /etc/localtime:/etc/localtime:ro \
   $IMAGE_NAME
@@ -43,8 +45,8 @@ docker exec $CONTAINER_NAME sh -c "echo '/host_libs' > /etc/ld.so.conf.d/host.co
 # --- 3. Lancement du Launcher ROS 2 ---
 echo "--- 🚀 Appel du launcher interne ---"
 # 1. On s'assure que le script est exécutable à l'intérieur
-docker exec $CONTAINER_NAME chmod +x $WS_PATH/scripts/launcher.sh
+docker exec $CONTAINER_NAME chmod +x $WS_PATH/src/rov/scripts/launcher.sh
 # 2. On lance le script (Note le chemin sans /src/)
-docker exec -it $CONTAINER_NAME bash -c "$WS_PATH/scripts/launcher.sh"
+docker exec -it $CONTAINER_NAME bash -c "$WS_PATH/src/rov/scripts/launcher.sh"
 
 cleanup
