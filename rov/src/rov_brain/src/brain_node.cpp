@@ -10,5 +10,6 @@ void BrainNode::run(){
     while(rclcpp::ok()){
         rclcpp::spin_some(this->get_node_base_interface());
         loop_rate.sleep();
+        RCLCPP_INFO(this->get_logger(), "Brain node running");
     }
 }

@@ -1,14 +1,13 @@
 #!/bin/bash
 
 # =================================================================
-# 🚀 LAUNCHER ROBOT CHENILLES v2.1 - FIX 90° & AUTO-CHECK
+# 🚀 LAUNCHER ROV v3.0 - ROS 2 JAZZY (WS: rov_ws)
 # =================================================================
 
 # 1. Configuration ROS 2
+# Le Domain ID permet d'isoler ton ROV si d'autres robots sont sur le même réseau
 export ROS_DOMAIN_ID=42
 export PYTHONUNBUFFERED=1
-# Force le frame ID pour le driver LD19 (selon les versions du driver)
-export LD19_FRAME="base_laser" 
 
 # --- FONCTIONS DE VÉRIFICATION ---
 wait_for_device() {
@@ -25,44 +24,40 @@ wait_for_topic() {
     echo " ✅ Flux actif !"
 }
 
-# 2. Nettoyage
-echo "🧹 Nettoyage des processus ROS 2..."
+# 2. Nettoyage des résidus ROS 2
+echo "🧹 Nettoyage des processus ROS 2 précédents..."
 pkill -f "ros2" || true
 pkill -f "rosbridge" || true
-sleep 2
-
-# 3. Chargement des sources
-source /opt/ros/jazzy/setup.bash
-cd /home/robot_ws
-source install/setup.bash
-
-echo "--- 1. Initialisation LiDAR LD19 ---"
-wait_for_device "/dev/ttyUSB0"
-sudo chmod 777 /dev/ttyUSB0
-
-# Lancement du Driver avec forçage du frame_id
-ros2 launch ldlidar_stl_ros2 ld19.launch.py frame_id:=base_laser &
-
-# On attend que le LiDAR publie réellement
-wait_for_topic "/scan"
-
-echo "--- 2. Correction Géométrique (TF) ---"
-# odom -> base_link
-ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_link &
 sleep 1
 
-# base_link -> base_laser (Correction de 90° : +1.5708 rad)
-# Format : x y z yaw pitch roll
-echo "📡 Application de la correction +90° sur base_laser..."
-ros2 run tf2_ros static_transform_publisher 0 0 0.18 1.5708 0 0 base_link base_laser &
+# 3. Chargement des sources (Chemins mis à jour vers rov_ws)
+source /opt/ros/jazzy/setup.bash
+if [ -f "/home/rov_ws/install/setup.bash" ]; then
+    source /home/rov_ws/install/setup.bash
+else
+    echo "⚠️ Attention : Workspace non compilé. Lancement impossible."
+    exit 1
+fi
 
-echo "--- 3. Lancement Hardware (Moteurs, Caméra, Tilt) ---"
-ros2 launch robot_bringup robot.launch.py &
+echo "--- 3. Lancement Hardware & Drivers ---"
+
+# Exemple d'utilisation de tes fonctions de check :
+# wait_for_device "/dev/video0" # Si tu as une caméra USB
+# wait_for_device "/dev/ttyACM0" # Si tu as une carte Arduino/Pixhawk
+
+# Lancement du bringup (nom de package mis à jour : rov_bringup)
+ros2 launch rov_bringup robot.launch.py &
+
+# On récupère le PID du launch pour pouvoir le tuer proprement
+LAUNCH_PID=$!
 
 echo "-------------------------------------------------------"
-echo "✅ SYSTÈME OPÉRATIONNEL"
-echo "🛠  Correction Angle : +90° (1.5708 rad)"
-echo "📡 IP : $(hostname -I | awk '{print $1}')"
+echo "✅ SYSTÈME ROV OPÉRATIONNEL"
+echo "📡 IP INTERNE : $(hostname -I | awk '{print $1}')"
+echo "📡 DOMAIN ID  : $ROS_DOMAIN_ID"
 echo "-------------------------------------------------------"
 
-wait
+# Gestion propre de l'arrêt
+trap "kill $LAUNCH_PID; exit" SIGINT SIGTERM
+
+wait $LAUNCH_PID
