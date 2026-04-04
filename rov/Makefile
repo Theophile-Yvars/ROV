@@ -28,10 +28,12 @@ build:
 
 # 2. Initialisation du Workspace sur la Pi
 init:
-	@echo "🚀 Compilation native sur la Raspberry Pi..."
-	# On remonte de deux niveaux pour lancer colcon depuis la racine du workspace
-	cd ../.. && colcon build --symlink-install
-	@echo "✅ Dossiers install/ et build/ créés à la racine du projet."
+	@echo "🚀 Compilation via Docker (car ROS 2 n'est pas sur la Pi)..."
+	@docker run --rm \
+		-v "$(shell realpath $(CURDIR)/../..):/home/rov_ws" \
+		$(IMAGE_NAME) \
+		bash -c "source /opt/ros/jazzy/setup.bash && cd /home/rov_ws && colcon build --symlink-install"
+	@echo "✅ Compilation terminée ! Les dossiers 'install' et 'build' sont sur ta Pi."
 
 # 3. Lancement (Appel de ton script start_robot_docker.sh)
 run:
