@@ -30,16 +30,24 @@ pkill -f "ros2" || true
 pkill -f "rosbridge" || true
 sleep 1
 
-# 3. Chargement des sources (Chemins mis à jour vers rov_ws)
+# --- 3. Chargement des sources ---
+# On source ROS 2 global (installé dans l'image Docker)
 source /opt/ros/jazzy/setup.bash
+
+# On détecte où se trouve le dossier install
+# Si on est dans le container, c'est /home/rov_ws
+# Si on est sur la Pi, c'est là où tu as lancé le script
 if [ -f "/home/rov_ws/install/setup.bash" ]; then
     source /home/rov_ws/install/setup.bash
+    echo "✅ Workspace /home/rov_ws chargé."
+elif [ -f "$HOME/rov-ws/install/setup.bash" ]; then
+    source "$HOME/rov-ws/install/setup.bash"
+    echo "✅ Workspace ~/rov-ws chargé."
 else
-    echo "⚠️ Attention : Workspace non compilé. Lancement impossible."
+    echo "❌ Erreur : Impossible de trouver install/setup.bash"
+    echo "As-tu bien fait un 'make init' réussi ?"
     exit 1
 fi
-
-echo "--- 3. Lancement Hardware & Drivers ---"
 
 # Exemple d'utilisation de tes fonctions de check :
 # wait_for_device "/dev/video0" # Si tu as une caméra USB
@@ -52,9 +60,8 @@ ros2 launch rov_bringup robot.launch.py &
 LAUNCH_PID=$!
 
 echo "-------------------------------------------------------"
-echo "✅ SYSTÈME ROV OPÉRATIONNEL"
-echo "📡 IP INTERNE : $(hostname -I | awk '{print $1}')"
-echo "📡 DOMAIN ID  : $ROS_DOMAIN_ID"
+echo "🚀 ROV EN LIGNE (Package: rov_bringup)"
+echo "📡 IP : $(hostname -I | awk '{print $1}') | DOMAIN : $ROS_DOMAIN_ID"
 echo "-------------------------------------------------------"
 
 # Gestion propre de l'arrêt

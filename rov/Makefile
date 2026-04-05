@@ -37,9 +37,9 @@ init:
 
 # 3. Lancement (Appel de ton script start_robot_docker.sh)
 run:
-	@echo "$(GREEN)Démarrage du container $(CONTAINER_NAME)...$(NC)"
+	@echo "Démarrage du container..."
 	@chmod +x scripts/start_robot_docker.sh
-	@./scripts/start_robot_docker.sh
+	ROOT_DIR=$(shell realpath $(CURDIR)/../..) ./scripts/start_robot_docker.sh
 
 # 4. Accès interactif
 shell:
@@ -62,7 +62,8 @@ info:
 	@echo "$(YELLOW)--- DOCKER STATUT ---$(NC)"
 	@docker ps -a --filter "name=$(CONTAINER_NAME)" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
 	@echo "\n$(YELLOW)--- WORKSPACE LOCAL ---$(NC)"
-	@ls -d build install log src 2>/dev/null || echo "Workspace non initialisé (faites 'make init')"
+	@# On regarde deux niveaux au-dessus (../../) pour trouver les dossiers ROS 2
+	@ls -d ../../build ../../install ../../log ../../src 2>/dev/null || echo "Workspace non initialisé (faites 'make init')"
 	@echo "\n$(YELLOW)--- HARDWARE (V4L2 & USB) ---$(NC)"
 	@ls /dev/video* 2>/dev/null || echo "Aucune caméra /dev/video trouvée"
 	@lsusb 2>/dev/null || echo "Commande lsusb non disponible"

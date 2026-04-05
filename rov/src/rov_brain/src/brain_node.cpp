@@ -1,4 +1,4 @@
-#include "brain_node.hpp"
+#include "rov_brain/brain_node.hpp"
 
 BrainNode::BrainNode() : Node("brain_node"){
     RCLCPP_INFO(this->get_logger(), "Brain node started");
@@ -12,4 +12,13 @@ void BrainNode::run(){
         loop_rate.sleep();
         RCLCPP_INFO(this->get_logger(), "Brain node running");
     }
+}
+
+int main(int argc, char ** argv)
+{
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<BrainNode>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+  return 0;
 }

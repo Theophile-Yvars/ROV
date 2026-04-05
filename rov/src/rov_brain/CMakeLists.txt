@@ -1,26 +1,24 @@
 cmake_minimum_required(VERSION 3.8)
-project(robot_brain)
+project(rov_brain)
 
-# Standard C++ 17 requis pour ROS 2 et OpenCV moderne
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
-# 1. Trouver les packages nécessaires
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+# Note: Si tu utilises OpenCV plus tard, n'oublie pas le find_package(OpenCV REQUIRED)
 
 # 2. Définir l'exécutable
-# On ne liste que brain_node.cpp puisqu'il contient maintenant le main()
 add_executable(brain_node src/brain_node.cpp)
 
+# --- AJOUT ICI : Dossier d'inclusion ---
+target_include_directories(brain_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
 # 3. Lier les dépendances
-# On ajoute sensor_msgs, cv_bridge et OpenCV
-target_link_libraries(brain_node ${OpenCV_LIBRARIES})
 ament_target_dependencies(brain_node 
   rclcpp 
   std_msgs 
@@ -30,6 +28,11 @@ ament_target_dependencies(brain_node
 install(TARGETS
   brain_node
   DESTINATION lib/${PROJECT_NAME}
+)
+
+# Installer aussi le dossier include pour les autres packages
+install(DIRECTORY include/
+  DESTINATION include/
 )
 
 ament_package()
