@@ -11,6 +11,9 @@
   <exec_depend>robot_hardware</exec_depend>
   <exec_depend>robot_brain</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
+  <exec_depend>v4l2_camera</exec_depend>
+  <exec_depend>web_video_server</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -13,9 +13,9 @@ NC     = \033[0m
 # Aide par défaut
 help:
 	@echo "$(YELLOW)Commandes ROV (Container: $(CONTAINER_NAME)) :$(NC)"
-	@echo "  make build   : 1. Construit l'image Docker (L'environnement)"
-	@echo "  make init    : 2. Initialise le Workspace (Compilation initiale)"
-	@echo "  make run     : 3. Lance le robot (Scripts + ROS 2 Launch)"
+	@echo "  make build   : Construit l'image Docker (L'environnement)"
+	@echo "  make init    : Initialise le Workspace (Compilation initiale)"
+	@echo "  make run     : Lance le robot (Scripts + ROS 2 Launch)"
 	@echo "  make shell   : Entre dans le container pour coder/compiler"
 	@echo "  make stop    : Arrête le container $(CONTAINER_NAME)"
 	@echo "  make info    : Vérifie l'état du système et du hardware"

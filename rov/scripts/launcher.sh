@@ -54,7 +54,7 @@ fi
 # wait_for_device "/dev/ttyACM0" # Si tu as une carte Arduino/Pixhawk
 
 # Lancement du bringup (nom de package mis à jour : rov_bringup)
-ros2 launch rov_bringup robot.launch.py &
+ros2 launch rov_bringup nautilus_launch.py &
 
 # On récupère le PID du launch pour pouvoir le tuer proprement
 LAUNCH_PID=$!
