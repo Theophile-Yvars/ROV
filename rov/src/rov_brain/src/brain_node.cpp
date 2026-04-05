@@ -1,24 +1,24 @@
 #include "rov_brain/brain_node.hpp"
+#include <chrono>
 
-BrainNode::BrainNode() : Node("brain_node"){
+using namespace std::chrono_literals;
+
+BrainNode::BrainNode() : Node("brain") {
     RCLCPP_INFO(this->get_logger(), "Brain node started");
-    run();
+    timer_ = this->create_wall_timer(
+        100ms, 
+        std::bind(&BrainNode::control_loop, this)
+    );
 }
 
-void BrainNode::run(){
-    rclcpp::Rate loop_rate(10);
-    while(rclcpp::ok()){
-        rclcpp::spin_some(this->get_node_base_interface());
-        loop_rate.sleep();
-        RCLCPP_INFO(this->get_logger(), "Brain node running");
-    }
+void BrainNode::control_loop() {
+    RCLCPP_INFO(this->get_logger(), "Brain node running - Calculating ROV state...");
 }
 
-int main(int argc, char ** argv)
-{
-  rclcpp::init(argc, argv);
-  auto node = std::make_shared<BrainNode>();
-  rclcpp::spin(node);
-  rclcpp::shutdown();
-  return 0;
+int main(int argc, char ** argv) {
+    rclcpp::init(argc, argv);    
+    auto node = std::make_shared<BrainNode>();    
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+    return 0;
 }

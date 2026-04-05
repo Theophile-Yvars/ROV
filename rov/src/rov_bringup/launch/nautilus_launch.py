@@ -3,35 +3,40 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        # 1. Le Cerveau (Lecture Gyro + Moteurs)
-        Node(package='robot_brain', executable='brain_node', name='brain'),
-
-        # 2. La Caméra (Qualité HD pour ta Cam v3)
+        # 1. Le Cerveau (Logique de contrôle)
         Node(
-            package='v4l2_camera',
-            executable='v4l2_camera_node',
-            name='camera_front',
-            parameters=[{
-                'video_device': '/dev/video0',
-                'image_size': [1280, 720], # 720p est le "sweet spot" pour le streaming
-                'pixel_format': 'MJPG',    # Crucial pour la vitesse sur Raspberry
-                'output_encoding': 'rgb8',
-                'pauze_mode': False,
-                'brightness': 50,          # Ajustable selon la clarté de l'eau
-            }]
+            package='rov_brain',
+            executable='brain_node',
+            name='brain',
+            output='screen'
         ),
 
-        # 3. Le serveur vidéo (Flux HTTP - Port 8080)
+        # 2. Le Bridge Caméra (Indispensable pour avoir l'image !)
+        # Il lit /dev/video10 et publie sur le topic /image_raw
+        Node(
+            package='rov_hardware',
+            executable='camera_bridge.py',
+            name='camera_front',
+            output='screen'
+        ),
+
+        # 3. Le serveur vidéo (Stream HTTP pour le Dashboard - Port 8080)
         Node(
             package='web_video_server', 
             executable='web_video_server', 
-            name='web_video'
+            name='web_video',
+            parameters=[{
+                'port': 8080,
+                'default_transport': 'raw',
+                'quality': 100 # Qualité max
+            }]
         ),
 
-        # 4. Rosbridge (Données JSON - Port 9090)
+        # 4. Rosbridge (Communication WebSocket pour le Joystick - Port 9090)
         Node(
             package='rosbridge_server', 
             executable='rosbridge_websocket', 
-            name='rosbridge'
+            name='rosbridge',
+            output='screen'
         )
     ])

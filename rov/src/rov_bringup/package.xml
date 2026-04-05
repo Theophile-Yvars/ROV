@@ -2,14 +2,14 @@
 <package format="3">
   <name>rov_bringup</name>
   <version>0.0.1</version>
-  <description>Scripts de lancement pour démarrer tout le robot Chenilles</description>
+  <description>Scripts de lancement pour démarrer le ROV</description>
   <maintainer email="votre@email.com">Theophile</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>robot_hardware</exec_depend>
-  <exec_depend>robot_brain</exec_depend>
+  <exec_depend>rov_hardware</exec_depend>
+  <exec_depend>rov_brain</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>v4l2_camera</exec_depend>
   <exec_depend>web_video_server</exec_depend>

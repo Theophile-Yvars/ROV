@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-v4l2-camera \
     ros-jazzy-web-video-server \
     ros-jazzy-rosbridge-suite \
+    ros-jazzy-camera-ros \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Gestion des dépendances ROS
