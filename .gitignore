@@ -1,57 +1,71 @@
-# --- ROS 2 Build Folders ---
-# Ces dossiers sont générés par 'colcon build' sur le Pi 5.
-# Ils ne doivent JAMAIS être sur GitHub.
-ros2_ws/build/
-ros2_ws/install/
-ros2_ws/log/
+# =================================================================
+# 🌊 NAUTILUS PROJECT - GLOBAL GITIGNORE
+# =================================================================
 
-# --- C++ / IDE Specific ---
-# Fichiers de configuration d'éditeurs (VS Code, etc.)
+# --- 📁 SYSTEM & IDE ---
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
 *.swp
 *.patch
 *.diff
+.history/
+bin/
+obj/
 
-# --- Python Compiled Files ---
-# Générés lors de l'exécution des fichiers Launch ou de la logique Python
+# --- 🤖 ROS 2 WORKSPACE (ros2_ws/) ---
+# On bloque les dossiers générés par la compilation sur la Pi
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# --- 🛠️ C++ & CMAKE SPECIFIC ---
+# Pour éviter de commit des fichiers de build locaux
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+**/install-manifest.txt
+
+# --- 🐍 PYTHON SPECIFIC (Launch & Scripts) ---
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
 .pytest_cache/
+.venv/
+env/
+venv/
 
-# --- Web / React Specific ---
-# Pour ton dossier dashboard_web
-dashboard_web/node_modules/
-dashboard_web/build/
-dashboard_web/.env.local
-.DS_Store
-
-# --- OS Specific ---
-# Fichiers système invisibles
-Thumbs.db
-.DS_Store
-
-# --- Frontend (React) ---
+# --- 💻 WEB & REACT (nautilus-dashboard) ---
 # Dossier des dépendances (TRÈS LOURD)
-dashboard_web/node_modules/
+node_modules/
 
-# Dossier de build (production)
-dashboard_web/build/
-dashboard_web/dist/
+# Dossiers de build/distribution (Vite utilise 'dist')
+dist/
+dist-ssr/
+build/
+out/
 
-# Logs d'erreurs npm
+# Logs d'erreurs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.eslintcache
 
-# Fichiers de variables d'environnement (Clés API, etc.)
-dashboard_web/.env
-dashboard_web/.env.local
-dashboard_web/.env.development.local
-dashboard_web/.env.test.local
-dashboard_web/.env.production.local
+# Fichiers de variables d'environnement (SÉCURITÉ)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
 
-# Dossiers de test
-dashboard_web/coverage/
+# --- 🐳 DOCKER ---
+.docker/
