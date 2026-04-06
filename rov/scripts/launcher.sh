@@ -21,16 +21,19 @@ else
     exit 1
 fi
 
-# --- 4. Vérification de la caméra virtuelle (Mode Max Quality) ---
-# On vérifie que le périphérique créé par l'hôte est bien monté dans Docker
+# --- 4. Vérification et Droits ---
 echo -n "⏳ Attente de la caméra virtuelle (/dev/video10)..."
-until [ -e "/dev/video10" ]; do 
+while [ ! -e "/dev/video10" ]; do 
     sleep 1
     echo -n "."
 done
 echo " ✅ Prêt !"
 
-# Lancement du bringup (Vérifie bien qu'il n'y a pas de doublons dans nautilus_launch.py)
+# FORCE les permissions à l'intérieur du container
+chmod 666 /dev/video10 2>/dev/null
+
+# --- 5. Lancement avec Clean Log ---
+# On utilise --screen pour voir les erreurs Python en direct dans la console
 ros2 launch rov_bringup nautilus_launch.py &
 
 LAUNCH_PID=$!
