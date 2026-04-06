@@ -34,7 +34,8 @@ echo "--- 📷 Capture IMX708 -> /dev/video10 (Format YUYV) ---"
 
 # Pipeline sans '-re' pour éviter la latence et avec 'yuyv422' en sortie
 # 'v4l2-ctl' n'est plus nécessaire avant car FFmpeg va négocier le format direct.
-rpicam-vid -t 0 --width 1280 --height 720 --framerate 30 --nopreview --codec yuv420 -o - | \
+# Exemple pour une rotation de 180° (Horizontal + Vertical)
+rpicam-vid -t 0 --width 1280 --height 720 --framerate 30 --hflip --vflip --nopreview --codec yuv420 -o - | \
 ffmpeg -v error -f rawvideo -pixel_format yuv420p -video_size 1280x720 -i - \
        -f v4l2 -pix_fmt yuyv422 /dev/video10 > /dev/null 2>&1 &
 
