@@ -81,3 +81,5 @@ info:
 	@ls -d $(WS_ROOT)/build $(WS_ROOT)/install $(WS_ROOT)/src 2>/dev/null || echo "Workspace non initialisé"
 	@echo "\n$(YELLOW)--- CAMERAS DETECTEES (Host) ---$(NC)"
 	@v4l2-ctl --list-devices 2>/dev/null || echo "v4l2-ctl non installé sur l'hôte"
+	@echo "\n$(YELLOW)--- PERIPHERIQUES I2C DETECTES (Bus 1) ---$(NC)"
+	@i2cdetect -y 1 2>/dev/null || docker exec -it $(CONTAINER_NAME) i2cdetect -y 1 2>/dev/null || echo "i2cdetect introuvable sur l'hôte et dans le conteneur"

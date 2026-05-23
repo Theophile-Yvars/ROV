@@ -3,7 +3,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        # 1. Le Cerveau (Logique de contrôle)
+        # 1. Le Cerveau (Logique de contrôle et centralisation)
         Node(
             package='rov_brain',
             executable='brain_node',
@@ -11,8 +11,7 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # 2. Le Bridge Caméra
-        # Note : On utilise le nom de l'exécutable défini dans CMakeLists.txt
+        # 2. Le Bridge Caméra (Python)
         Node(
             package='rov_hardware',
             executable='camera_bridge_node.py', 
@@ -20,16 +19,24 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # 3. Capteur de Température TMP102 (C++)
-        # Nouveau Node ajouté ici !
+        # 3. Capteur de Température Interne TMP102 (C++)
         Node(
             package='rov_hardware',
             executable='temp_node',
-            name='temp_sensor',
+            name='temp_internal',
+            output='screen',
+            parameters=[{'i2c_address': 0x48}]
+        ),
+
+        # 4. Capteur de Pression & Profondeur Externe MS5837 (C++) 
+        Node(
+            package='rov_hardware',
+            executable='pression_node',
+            name='pressure_external',
             output='screen'
         ),
 
-        # 4. Le serveur vidéo (Stream HTTP pour le Dashboard - Port 8080)
+        # 5. Le serveur vidéo (Stream HTTP pour le Dashboard - Port 8080)
         Node(
             package='web_video_server', 
             executable='web_video_server', 
@@ -41,7 +48,22 @@ def generate_launch_description():
             }]
         ),
 
-        # 5. Rosbridge (Communication WebSocket pour le Joystick - Port 9090)
+        Node(
+            package='rov_hardware',
+            executable='cpu_temp_node',
+            name='pi_cpu_temp',
+            output='screen'
+        ),
+
+        Node(
+            package='rov_hardware',
+            executable='imu_node',
+            name='imu_gyro',
+            output='screen',
+            parameters=[{'i2c_address': 0x29}]
+        ),
+
+        # 6. Rosbridge (Communication WebSocket pour le Joystick - Port 9090)
         Node(
             package='rosbridge_server', 
             executable='rosbridge_websocket', 

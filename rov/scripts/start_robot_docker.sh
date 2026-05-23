@@ -66,7 +66,7 @@ docker exec -it $CONTAINER_NAME bash -c "$WS_PATH/src/rov/scripts/build.sh"
 docker exec $CONTAINER_NAME sh -c "echo '/host_libs' > /etc/ld.so.conf.d/host.conf && ldconfig"
 
 echo "--- 🚀 Lancement de la stack ROV ---"
-docker exec $CONTAINER_NAME chmod +x $WS_PATH/src/rov/src/rov-hardware/src/camera_bridge.py
+docker exec $CONTAINER_NAME chmod +x $WS_PATH/src/rov/src/rov_hardware/src/camera_bridge_node.py
 docker exec $CONTAINER_NAME chmod +x $WS_PATH/src/rov/scripts/launcher.sh
 docker exec -it $CONTAINER_NAME bash -c "$WS_PATH/src/rov/scripts/launcher.sh"
 
