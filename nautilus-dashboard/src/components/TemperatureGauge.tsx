@@ -1,57 +1,65 @@
 import React from 'react';
+import { Thermometer, Cpu, Waves } from 'lucide-react';
 import { useRosTopic } from '../hooks/useRosTopic';
 
 const TemperatureGauge: React.FC = () => {
-  // On écoute le topic publié par ton temp_node C++
-  const temp = useRosTopic<number>('/rov/temperature', 'std_msgs/msg/Float32');
+  // 1. Abonnements ROS 2 avec les types exacts découverts sur ta Pi
+  const tempEauRaw = useRosTopic<any>('/rov/water_temperature', 'sensor_msgs/msg/Temperature', null);
+  const tempInterneRaw = useRosTopic<any>('/rov/temperature', 'std_msgs/msg/Float32', null);
+  const tempCpuRaw = useRosTopic<any>('/rov/cpu_temperature', 'std_msgs/msg/Float32', null);
 
-  const getStatus = (t: number) => {
-    if (t >= 45) return { label: 'CRITIQUE', color: '#ff4444' };
-    if (t >= 35) return { label: 'CHAUD', color: '#ffcc00' };
-    return { label: 'NOMINAL', color: '#00ff00' };
+  // 2. Fonction d'extraction magique pour tolérer tous les formats d'objets ou de primitifs
+  const extractValue = (raw: any): number | null => {
+    if (raw === null || raw === undefined) return null;
+    if (typeof raw === 'object') {
+      if ('temperature' in raw) return raw.temperature as number; // Format sensor_msgs
+      if ('data' in raw) return raw.data as number;               // Format std_msgs
+      return null;
+    }
+    return Number(raw);
   };
 
-  const currentTemp = temp ?? 0;
-  const status = getStatus(currentTemp);
+  const tempEau = extractValue(tempEauRaw);
+  const tempInterne = extractValue(tempInterneRaw);
+  const tempCpu = extractValue(tempCpuRaw);
 
   return (
-    <div style={styles.card}>
-      <h3 style={styles.title}>Température ROV</h3>
-      
-      <div style={styles.gaugeBg}>
-        <div 
-          style={{ 
-            ...styles.gaugeFill, 
-            width: `${Math.min((currentTemp / 60) * 100, 100)}%`,
-            backgroundColor: status.color 
-          }} 
-        />
+    <div className="bg-black/75 backdrop-blur-md p-4 rounded-lg border border-white/5 flex gap-6 font-mono shadow-2xl pointer-events-auto select-none">
+      {/* EAU EXTÉRIEURE */}
+      <div className="flex flex-col">
+        <span className="text-[9px] text-slate-500 flex items-center gap-1 uppercase tracking-wider mb-1">
+          <Waves size={10} className="text-blue-400" /> Eau Ext.
+        </span>
+        <span className="text-base font-bold text-blue-400">
+          {tempEau !== null ? `${tempEau.toFixed(1)}°C` : '---'}
+        </span>
       </div>
 
-      <div style={styles.info}>
-        <span style={styles.value}>{temp !== null ? `${temp.toFixed(1)}°C` : '---'}</span>
-        <span style={{ ...styles.status, color: status.color }}>{status.label}</span>
+      <div className="w-px bg-white/10 h-8 self-center" />
+
+      {/* CAISSON INTERNE */}
+      <div className="flex flex-col">
+        <span className="text-[9px] text-slate-500 flex items-center gap-1 uppercase tracking-wider mb-1">
+          <Thermometer size={10} className="text-cyan-400" /> Caisson Int.
+        </span>
+        <span className={`text-base font-bold ${tempInterne && tempInterne > 40 ? 'text-red-500 animate-pulse' : 'text-cyan-400'}`}>
+          {tempInterne !== null ? `${tempInterne.toFixed(1)}°C` : '---'}
+        </span>
+      </div>
+
+      <div className="w-px bg-white/10 h-8 self-center" />
+
+      {/* CPU RASPBERRY PI 5 */}
+      <div className="flex flex-col">
+        <span className="text-[9px] text-slate-500 flex items-center gap-1 uppercase tracking-wider mb-1">
+          <Cpu size={10} className="text-emerald-400" /> CPU Pi 5
+        </span>
+        <span className={`text-base font-bold ${tempCpu && tempCpu > 70 ? 'text-red-500 animate-bounce' : tempCpu && tempCpu > 55 ? 'text-amber-400' : 'text-emerald-400'}`}>
+          {tempCpu !== null ? `${tempCpu.toFixed(1)}°C` : '---'}
+        </span>
       </div>
     </div>
   );
-};
-
-// Styles inline pour l'exemple (à mettre dans ton CSS/Tailwind)
-const styles: { [key: string]: React.CSSProperties } = {
-  card: {
-    background: '#121212',
-    padding: '20px',
-    borderRadius: '12px',
-    border: '1px solid #333',
-    width: '220px',
-    fontFamily: 'sans-serif'
-  },
-  title: { fontSize: '0.9rem', color: '#aaa', margin: '0 0 10px 0' },
-  gaugeBg: { background: '#333', height: '8px', borderRadius: '4px', overflow: 'hidden' },
-  gaugeFill: { height: '100%', transition: 'all 0.5s ease' },
-  info: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' },
-  value: { fontSize: '1.4rem', fontWeight: 'bold', color: '#fff' },
-  status: { fontSize: '0.7rem', fontWeight: 'bold' }
 };
 
 export default TemperatureGauge;

@@ -1,43 +1,42 @@
-// src/App.tsx
 import React, { useState } from 'react';
 import StatusBar from './components/StatusBar';
 import Video from './components/Video';
 import TelemetryOverlay from './components/TelemetryOverlay';
 
 function App() {
-  // --- CONFIGURATION DU ROV ---
-  const [isConnected, setIsConnected] = useState(true);
-  const [rovIp, setRovIp] = useState("192.168.1.83");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isConnected] = useState(true);
+  const [rovIp] = useState("192.168.1.83");
+  const [isLoading] = useState(false);
 
-  // Construction dynamique de l'URL du flux
-  // Note: On utilise l'IP d'état pour que le changement soit réactif
   const streamUrl = `http://${rovIp}:8080/stream?topic=/image_raw&type=mjpeg`;
 
   return (
-    // Container principal : Fullscreen, sans scroll, look "Deep Sea"
     <div className="flex flex-col h-screen bg-[#05080a] text-slate-200 overflow-hidden font-sans select-none relative">
       
-      {/* 1. Barre de Statut supérieure (Position fixe) */}
+      {/* 1. BARRE DE STATUT (Z-INDEX 50) */}
       <StatusBar rovIp={rovIp} isConnected={isConnected} />
 
-      {/* 2. Zone centrale : Le Cockpit (Prend tout l'espace restant) */}
+      {/* 2. COCKPIT CENTRAL */}
       <main className="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
         
-        {/* Le flux vidéo (Le fond de l'interface) */}
+        {/* Caméra en fond */}
         <Video 
           streamUrl={streamUrl} 
           isConnected={isConnected} 
           isLoading={isLoading} 
         />
 
-        {/* La couche de Télémétrie (HUD flottant par-dessus la vidéo) */}
-        {/* On lui passe l'état de connexion pour adapter les jauges si besoin */}
-        <TelemetryOverlay isConnected={isConnected} />
+        {/* HUD de Télémétrie par-dessus (Z-INDEX 20) */}
+        <TelemetryOverlay 
+          headingDefault={45.0} 
+          pitchDefault={2.0} 
+          rollDefault={-1.0} 
+          depthDefault={1.20} 
+        />
         
       </main>
 
-      {/* 3. Barre de notifications inférieure (Logs système) */}
+      {/* 3. TERMINAL DE FOND DE PAGE (FOOTER) */}
       <footer className="h-7 bg-[#0a0f14] border-t border-white/5 px-6 flex items-center justify-between z-50 relative shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-3">
           <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-600'}`} />
@@ -50,10 +49,10 @@ function App() {
         
         <div className="flex items-center gap-6">
           <p className="text-[10px] font-mono text-slate-700 uppercase">
-             Enc: H.264 | Latency: --ms
+             Enc: MJPEG | ROS2 Bridge: OK
           </p>
           <p className="text-[10px] font-mono text-slate-700 uppercase">
-            Dev Mode v1.0 | Surface Comms: OK
+             Nautilus OS v1.2 | Domain: 42
           </p>
         </div>
       </footer>

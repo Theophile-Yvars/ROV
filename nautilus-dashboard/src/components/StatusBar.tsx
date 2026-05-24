@@ -1,7 +1,6 @@
-// src/components/StatusBar.tsx
 import React, { useState, useEffect } from 'react';
-import { Wifi, BatteryCharging, Clock, Zap, Target, Thermometer } from 'lucide-react';
-import { useRosTopic } from '../hooks/useRosTopic'; // On réutilise le hook
+import { Wifi, BatteryCharging, Clock, Zap, Target, AlertTriangle } from 'lucide-react';
+import { useRosTopic } from '../hooks/useRosTopic';
 
 interface StatusBarProps {
   rovIp: string;
@@ -11,8 +10,8 @@ interface StatusBarProps {
 const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
   const [missionTime, setMissionTime] = useState(0);
   
-  // --- NOUVEAU : Récupération de la température réelle ---
-  const temp = useRosTopic<number>('/rov/temperature', 'std_msgs/msg/Float32', 0);
+  const tempCaisson = useRosTopic<number>('/rov/temperature', 'std_msgs/msg/Float32', 0);
+  const tempCpu = useRosTopic<number>('/rov/cpu_temperature', 'std_msgs/msg/Float32', 0);
 
   useEffect(() => {
     if (!isConnected) return;
@@ -20,7 +19,6 @@ const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
     return () => clearInterval(timer);
   }, [isConnected]);
 
-  // Formattage du temps (Inchangé)
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
     const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
@@ -28,10 +26,11 @@ const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
     return `${h}:${m}:${s}`;
   };
 
+  const isOverheating = tempCpu > 70 || tempCaisson > 45;
+
   return (
-    <div className="h-12 bg-[#0a0f14]/80 backdrop-blur-lg border-b border-white/5 flex items-center justify-between px-6 text-white font-mono text-sm z-50 relative">
+    <div className="h-12 bg-[#0a0f14]/90 backdrop-blur-lg border-b border-white/5 flex items-center justify-between px-6 text-white font-mono text-sm z-50 relative select-none">
       
-      {/* Gauche : Logo & Mode */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-cyan-950 rounded border border-cyan-500/30 flex items-center justify-center shadow-[0_0_10px_rgba(0,210,255,0.2)]">
@@ -46,7 +45,6 @@ const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
         </div>
       </div>
 
-      {/* Centre : Mission Timer */}
       <div className="flex items-center gap-3 bg-black/40 px-5 py-1.5 rounded-full border border-white/5 shadow-inner">
         <Clock size={16} className="text-slate-500" />
         <span className="text-lg font-bold tracking-tight text-white/90 tabular-nums">
@@ -55,16 +53,13 @@ const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
         <span className="text-xs text-slate-500 uppercase tracking-widest mt-0.5">T-Mission</span>
       </div>
 
-      {/* Droite : Stats Réseau & Santé (Temp + Batterie) */}
       <div className="flex items-center gap-6 text-slate-300">
-        
-        {/* NOUVEAU : Affichage Température dans la barre */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded border border-white/5 bg-white/5">
-          <Thermometer size={14} className={temp > 40 ? 'text-red-500 animate-pulse' : 'text-cyan-400'} />
-          <span className={`font-bold ${temp > 40 ? 'text-red-500' : 'text-white/90'}`}>
-            {temp.toFixed(1)}°C
-          </span>
-        </div>
+        {isOverheating && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-red-950/80 border border-red-500/50 rounded animate-pulse text-red-400 text-xs font-bold shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+            <AlertTriangle size={14} />
+            <span>OVERHEAT WARNING</span>
+          </div>
+        )}
 
         <div className="flex items-center gap-2.5">
           <span className="text-slate-500 text-xs">PI_SUB:</span>

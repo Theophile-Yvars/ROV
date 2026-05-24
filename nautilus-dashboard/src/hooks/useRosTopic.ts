@@ -1,12 +1,10 @@
-// src/hooks/useRosTopic.ts
 import { useEffect, useState } from 'react';
-import * as ROSLIB from 'roslib'; // <-- Change ceci
+import * as ROSLIB from 'roslib';
 
 export const useRosTopic = <T>(topicName: string, messageType: string, defaultValue: T): T => {
   const [data, setData] = useState<T>(defaultValue);
 
   useEffect(() => {
-    // Vérification de sécurité pour éviter les erreurs SSR ou pendant le build
     if (typeof window === 'undefined') return;
 
     const ros = new ROSLIB.Ros({
@@ -20,14 +18,13 @@ export const useRosTopic = <T>(topicName: string, messageType: string, defaultVa
     });
 
     topic.subscribe((message: any) => {
-      // Dans ROS, la donnée est souvent dans .data, mais parfois c'est l'objet complet
-      // On cast ici selon ce que ton node C++ envoie
-      setData(message.data !== undefined ? message.data : message);
+      if (message !== undefined && message !== null) {
+        setData(message as T);
+      }
     });
 
-    // Gestion des erreurs de connexion pour ne pas polluer la console
     ros.on('error', () => {
-      console.log(`[ROS] Erreur de connexion sur ${topicName}`);
+      console.log(`[ROS Bridge] Erreur de communication ou serveur déconnecté sur : ${topicName}`);
     });
 
     return () => {
