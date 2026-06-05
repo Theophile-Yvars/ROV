@@ -7,11 +7,21 @@ export const useRosTopic = <T>(topicName: string, messageType: string, defaultVa
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const ros = new ROSLIB.Ros({
+    // 1. Extraction compatible avec le bundle de Vite
+    const RosClass = (ROSLIB as any).Ros || (window as any).ROSLIB?.Ros;
+    const TopicClass = (ROSLIB as any).Topic || (window as any).ROSLIB?.Topic;
+
+    if (!RosClass || !TopicClass) {
+      console.error(`[ROS Hook] Échec de chargement des constructeurs pour : ${topicName}`);
+      return;
+    }
+
+    // 2. Utilisation des classes extraites
+    const ros = new RosClass({
       url: `ws://192.168.1.83:9090`
     });
 
-    const topic = new ROSLIB.Topic({
+    const topic = new TopicClass({
       ros: ros,
       name: topicName,
       messageType: messageType
