@@ -52,6 +52,7 @@ docker run -dt --name $CONTAINER_NAME \
   --privileged \
   --net=host --ipc=host --pid=host \
   --group-add video \
+  -v /sys/class/pwm:/sys/class/pwm \
   -v /dev:/dev \
   -v /sys:/sys \
   -v "$REAL_WS_ROOT:/home/rov_ws" \
