@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import StatusBar from './components/StatusBar';
 import Video from './components/Video';
 import TelemetryOverlay from './components/TelemetryOverlay';
-import ThrusterController from './components/ThrusterController'; 
+import ThrusterController from './components/ThrusterController';
+import CameraTiltControl from './components/CameraTiltControl';
 
 function App() {
   const [isConnected] = useState(true);
@@ -27,6 +28,9 @@ function App() {
           isLoading={isLoading} 
         />
 
+        <ThrusterController rovIp={rovIp} />
+        <CameraTiltControl />
+
         {/* HUD de Télémétrie par-dessus (Z-INDEX 20) */}
         <TelemetryOverlay 
           headingDefault={45.0} 
@@ -34,9 +38,6 @@ function App() {
           rollDefault={-1.0} 
           depthDefault={1.20} 
         />
-
-        {/* CONTRÔLE DES MOTEURS (Z-INDEX 30) */}
-        <ThrusterController rovIp={rovIp} />
         
       </main>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wifi, BatteryCharging, Clock, Zap, Target, AlertTriangle } from 'lucide-react';
+import { Wifi, Clock, Zap, Target, AlertTriangle } from 'lucide-react';
 import { useRosTopic } from '../hooks/useRosTopic';
 
 interface StatusBarProps {
@@ -10,8 +10,19 @@ interface StatusBarProps {
 const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
   const [missionTime, setMissionTime] = useState(0);
   
+  // Utilisation de tes hooks existants
   const tempCaisson = useRosTopic<number>('/rov/temperature', 'std_msgs/msg/Float32', 0);
   const tempCpu = useRosTopic<number>('/rov/cpu_temperature', 'std_msgs/msg/Float32', 0);
+  
+  // Correction : Utilisation du hook pour la latence au lieu d'un useEffect manuel
+  const latencyData = useRosTopic<number>('/rov/latency', 'std_msgs/msg/Float32', 0);
+  const latency = Math.round(latencyData);
+
+  const batteryData = useRosTopic<{ voltage: number, percentage: number }>(
+    '/rov/battery_state', 
+    'sensor_msgs/msg/BatteryState', 
+    { voltage: 0, percentage: 0 }
+  );
 
   useEffect(() => {
     if (!isConnected) return;
@@ -65,18 +76,21 @@ const StatusBar: React.FC<StatusBarProps> = ({ rovIp, isConnected }) => {
           <span className="text-slate-500 text-xs">PI_SUB:</span>
           <span className="text-white/80 font-medium">{rovIp}</span>
           <div className="flex items-center gap-1.5">
-            <span className="text-green-400 font-bold tabular-nums">12ms</span>
-            <Wifi size={18} className="text-green-400" />
+            <span className={`font-bold tabular-nums ${latency > 150 ? 'text-red-500' : 'text-green-400'}`}>
+              {latency}ms
+            </span>
+            <Wifi size={18} className={latency > 150 ? 'text-red-500' : 'text-green-400'} />
           </div>
         </div>
 
         <div className="h-5 w-px bg-white/10" />
         
-        <div className="flex items-center gap-2.5">
-          <span className="text-white font-bold tabular-nums text-base">14.8V</span>
-          <span className="text-green-500 font-bold text-base">98%</span>
-          <BatteryCharging size={22} className="text-green-500" />
-        </div>
+        <span className="text-white font-bold tabular-nums text-base">
+          {batteryData.voltage.toFixed(1)}V
+        </span>
+        <span className="text-green-500 font-bold text-base">
+          {Math.round(batteryData.percentage)}%
+        </span>
       </div>
     </div>
   );

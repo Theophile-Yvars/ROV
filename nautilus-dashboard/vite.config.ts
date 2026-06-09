@@ -1,11 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-})
+  plugins: [react()],
+  optimizeDeps: {
+    // Force Vite à inclure roslib et à le transformer en ESM
+    include: ['roslib']
+  },
+  build: {
+    commonjsOptions: {
+      // Indique à Vite de traiter roslib comme un module CommonJS
+      include: [/roslib/, /node_modules/]
+    }
+  }
+});

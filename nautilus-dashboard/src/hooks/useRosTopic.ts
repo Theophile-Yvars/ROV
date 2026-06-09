@@ -5,38 +5,31 @@ export const useRosTopic = <T>(topicName: string, messageType: string, defaultVa
   const [data, setData] = useState<T>(defaultValue);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    // 1. Extraction compatible avec le bundle de Vite
-    const RosClass = (ROSLIB as any).Ros || (window as any).ROSLIB?.Ros;
-    const TopicClass = (ROSLIB as any).Topic || (window as any).ROSLIB?.Topic;
-
-    if (!RosClass || !TopicClass) {
-      console.error(`[ROS Hook] Échec de chargement des constructeurs pour : ${topicName}`);
-      return;
-    }
-
-    // 2. Utilisation des classes extraites
-    const ros = new RosClass({
-      url: `ws://192.168.1.83:9090`
+    // Connexion au ROS Bridge
+    const ros = new ROSLIB.Ros({
+      url: 'ws://192.168.1.83:9090'
     });
 
-    const topic = new TopicClass({
+    const topic = new ROSLIB.Topic({
       ros: ros,
       name: topicName,
       messageType: messageType
     });
 
     topic.subscribe((message: any) => {
-      if (message !== undefined && message !== null) {
+      // Si le message est un objet { data: ... } (cas std_msgs/Float32), on extrait le .data
+      if (message && message.data !== undefined) {
+        setData(message.data as T);
+      } else {
         setData(message as T);
       }
     });
 
-    ros.on('error', () => {
-      console.log(`[ROS Bridge] Erreur de communication ou serveur déconnecté sur : ${topicName}`);
+    ros.on('error', (error: any) => {
+      console.error(`[ROS Bridge] Erreur sur ${topicName}:`, error);
     });
 
+    // Nettoyage lors du démontage du composant
     return () => {
       topic.unsubscribe();
       ros.close();
