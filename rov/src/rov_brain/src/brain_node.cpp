@@ -29,6 +29,7 @@ BrainNode::BrainNode() : Node("brain"), current_temperature_(0.0), cpu_temperatu
     imu_sub_ = this->create_subscription<geometry_msgs::msg::Vector3>("/rov/orientation", 10, std::bind(&BrainNode::imu_callback, this, std::placeholders::_1));
     cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>("/rov/cmd_vel_input", 10, std::bind(&BrainNode::cmd_vel_input_callback, this, std::placeholders::_1));
     batt_v_sub_ = this->create_subscription<std_msgs::msg::Float32>("/battery/voltage", 10, std::bind(&BrainNode::battery_voltage_callback, this, std::placeholders::_1));
+    camera_tilt_sub_ = this->create_subscription<std_msgs::msg::Float32>("/rov/camera_tilt", 10, std::bind(&BrainNode::camera_tilt_callback, this, std::placeholders::_1));
 
     // 3. Éditeur vers le nœud de propulsion physique
     motor_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/rov/cmd_vel", 10);
@@ -46,7 +47,7 @@ void BrainNode::water_temp_callback(const sensor_msgs::msg::Temperature::SharedP
 void BrainNode::pressure_callback(const sensor_msgs::msg::FluidPressure::SharedPtr msg) { current_pressure_ = msg->fluid_pressure; }
 void BrainNode::imu_callback(const geometry_msgs::msg::Vector3::SharedPtr msg) { current_orientation_ = *msg; }
 void BrainNode::battery_voltage_callback(const std_msgs::msg::Float32::SharedPtr msg) { battery_voltage_ = msg->data; }
-
+void BrainNode::camera_tilt_callback(const std_msgs::msg::Float32::SharedPtr msg) { camera_tilt_value_ = msg->data; }
 void BrainNode::cmd_vel_input_callback(const geometry_msgs::msg::TwistStamped::SharedPtr msg) {
     // 1. Calcul de la latence
     if (msg->header.stamp.sec > 0) {
@@ -110,6 +111,7 @@ void BrainNode::control_loop() {
         }else{
             RCLCPP_INFO(this->get_logger(), "Batterie Voltage            : %.2f V", battery_voltage_);
         }
+        RCLCPP_INFO(this->get_logger(), "Tilt Caméra                 : %.2f °", camera_tilt_value_);
     }
 
     // Publication batterie

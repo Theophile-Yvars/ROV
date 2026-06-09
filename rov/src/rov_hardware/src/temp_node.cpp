@@ -57,10 +57,6 @@ void TMP102Node::init_i2c() {
 void TMP102Node::read_temperature() {
     if (fd_ < 0) return;
 
-    int i2c_addr;
-    this->get_parameter("i2c_address", i2c_addr);
-    ioctl(fd_, I2C_SLAVE, i2c_addr);
-
     // On force le pointeur sur le registre de température
     uint8_t reg = 0x00;
     if (write(fd_, &reg, 1) != 1) return;
@@ -68,29 +64,23 @@ void TMP102Node::read_temperature() {
     // Lecture des 2 octets
     uint8_t buffer[2] = {0, 0};
     if (read(fd_, buffer, 2) != 2) {
-        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000, "TMP102: Échec lecture");
+        RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "TMP102: Échec lecture");
         return;
     }
 
-    // buffer[0] contient le MSB, buffer[1] contient le LSB.
-    // Pour reproduire le comportement de i2cget qui a donné 0x3008 :
-    // high_byte (poids fort réel) = buffer[0], low_byte = buffer[1].
-    uint8_t high_byte = buffer[0];
-    uint8_t low_byte  = buffer[1];
+    // buffer[0] = MSB, buffer[1] = LSB — même logique que le Python corrigé
+    int16_t valeur_brute = ((buffer[0] << 8) | buffer[1]) >> 4;
 
-    int16_t valeur_brute = (high_byte << 4) | (low_byte >> 4);
-    
-    if (valeur_brute & 0x0800) {
-        valeur_brute |= 0xF000;
-    }
+    // Température négative (complément à 2 sur 12 bits)
+    if (valeur_brute > 2047) valeur_brute -= 4096;
 
-    // Le coefficient magique de recalage pour correspondre au mode 0x6000
-    float temperature = (valeur_brute * 0.0625f) * 3.2f;
+    float temperature = valeur_brute * 0.0625f; // Pas de coefficient magique
 
-    // Publication
     auto message = std_msgs::msg::Float32();
     message.data = temperature;
     publisher_->publish(message);
+
+    //RCLCPP_DEBUG(get_logger(), "TMP102: %.2f °C", temperature);
 }
 
 // --- MAIN ---

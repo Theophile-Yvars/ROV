@@ -26,6 +26,7 @@ private:
     void imu_callback(const geometry_msgs::msg::Vector3::SharedPtr msg);
     void battery_voltage_callback(const std_msgs::msg::Float32::SharedPtr msg);
     void cmd_vel_input_callback(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
+    void camera_tilt_callback(const std_msgs::msg::Float32::SharedPtr msg);
     
     void control_loop();
 
@@ -40,6 +41,7 @@ private:
     rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr imu_sub_;
     rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_sub_;
     rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr batt_v_sub_;
+    rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr camera_tilt_sub_;
 
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr motor_pub_;
     rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_state_pub_;
@@ -53,6 +55,7 @@ private:
     double current_pressure_;    
     geometry_msgs::msg::Vector3 current_orientation_; 
     float battery_voltage_;
+    float camera_tilt_value_;
     
     geometry_msgs::msg::Twist last_pilot_command_;
     rclcpp::Time last_command_time_;

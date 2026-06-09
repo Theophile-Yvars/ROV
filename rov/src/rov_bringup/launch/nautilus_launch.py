@@ -83,6 +83,14 @@ def generate_launch_description():
             parameters=[{'i2c_address': 0x49}] 
         ),
 
+        # 10. Contrôleur Servo Caméra
+        Node(
+            package='rov_hardware',
+            executable='camera_servo_node', # Assure-toi que c'est le nom de l'exécutable dans CMakeLists.txt
+            name='camera_servo',
+            output='screen'
+        ),
+
         # --- Contrôleur des Propulseurs / Moteurs (F2838 + ESCs) ---
         Node(
             package='rov_hardware',
