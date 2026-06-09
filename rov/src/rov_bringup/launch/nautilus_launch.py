@@ -48,6 +48,7 @@ def generate_launch_description():
             }]
         ),
 
+        # 6. Température CPU du Raspberry Pi
         Node(
             package='rov_hardware',
             executable='cpu_temp_node',
@@ -55,6 +56,7 @@ def generate_launch_description():
             output='screen'
         ),
 
+        # 7. Centrale Inertielle (IMU BNO055)
         Node(
             package='rov_hardware',
             executable='imu_node',
@@ -63,11 +65,29 @@ def generate_launch_description():
             parameters=[{'i2c_address': 0x29}]
         ),
 
-        # 6. Rosbridge (Communication WebSocket pour le Joystick - Port 9090)
+        # 8. Rosbridge (Communication WebSocket pour le Joystick - Port 9090)
         Node(
             package='rosbridge_server', 
             executable='rosbridge_websocket', 
             name='rosbridge',
+            output='screen'
+        ),
+
+        # 9. NOUVEAU : Télémétrie Batterie (ADC ADS1115)
+        Node(
+            package='rov_hardware',
+            executable='battery_node.py',
+            name='battery_monitor',
+            output='screen',
+            # Optionnel : si tu veux forcer l'adresse I2C via paramètre
+            parameters=[{'i2c_address': 0x49}] 
+        ),
+
+        # --- Contrôleur des Propulseurs / Moteurs (F2838 + ESCs) ---
+        Node(
+            package='rov_hardware',
+            executable='thruster_controller_node',  # Doit correspondre exactement au nom dans CMakeLists.txt
+            name='thruster_controller',
             output='screen'
         )
     ])
